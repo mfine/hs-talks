@@ -2,7 +2,9 @@ module Lib
   ( main'
   ) where
 
--- v2 : Link the two parts and define the data to input and output.
+-- v3 : Setup the parsing of the input
+
+import Text.Parsec.String
 
 -- data ----------------------------------------------------
 
@@ -20,6 +22,14 @@ data Result = Result
   } deriving Show
 
 -- parsing -------------------------------------------------
+
+-- Parse out a single ranking from the file
+rankingParser :: Parser Ranking
+rankingParser = undefined
+
+-- Parse out all of the rankings
+rankingsParser :: Parser [Ranking]
+rankingsParser = undefined
 
 -- Take a file and produce a list of team rankings
 parseRankings :: String -> IO [Ranking]
