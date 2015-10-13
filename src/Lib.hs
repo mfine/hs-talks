@@ -2,7 +2,7 @@ module Lib
   ( main'
   ) where
 
--- v9 : Print out results and wire up file inputs and processing
+-- v10 : Fill in the division team mapping and other data
 
 import Control.Monad
 import qualified Data.Map.Strict as Map
@@ -52,9 +52,64 @@ parseRankings file =
 
 -- calculating ---------------------------------------------
 
+-- AFC divisions
+afcEast, afcWest, afcSouth, afcNorth :: String
+afcEast = "AFC East"
+afcWest = "AFC West"
+afcSouth = "AFC South"
+afcNorth = "AFC North"
+
+-- NFC divisions
+nfcEast, nfcWest, nfcSouth, nfcNorth :: String
+nfcEast = "NFC East"
+nfcWest = "NFC West"
+nfcSouth = "NFC South"
+nfcNorth = "NFC North"
+
 -- Map teams to their divisions
 teamDivisionMap :: Map.Map String String
-teamDivisionMap = undefined
+teamDivisionMap = Map.fromList
+  [ ("PATRIOTS",   afcEast)
+  , ("JETS",       afcEast)
+  , ("DOLPHINS",   afcEast)
+  , ("BILLS",      afcEast)
+
+  , ("BENGALS",    afcNorth)
+  , ("BROWNS",     afcNorth)
+  , ("STEELERS",   afcNorth)
+  , ("RAVENS",     afcNorth)
+
+  , ("BRONCOS",    afcWest)
+  , ("RAIDERS",    afcWest)
+  , ("CHARGERS",   afcWest)
+  , ("CHIEFS",     afcWest)
+
+  , ("JAGUARS",    afcSouth)
+  , ("TITANS",     afcSouth)
+  , ("TEXANS",     afcSouth)
+  , ("COLTS",      afcSouth)
+
+  , ("FALCONS",    nfcSouth)
+  , ("PANTHERS",   nfcSouth)
+  , ("BUCCANEERS", nfcSouth)
+  , ("SAINTS",     nfcSouth)
+
+  , ("PACKERS",    nfcNorth)
+  , ("VIKINGS",    nfcNorth)
+  , ("LIONS",      nfcNorth)
+  , ("BEARS",      nfcNorth)
+
+  , ("COWBOYS",    nfcEast)
+  , ("REDSKINS",   nfcEast)
+  , ("GIANTS",     nfcEast)
+  , ("EAGLES",     nfcEast)
+
+  , ("CARDINALS",  nfcWest)
+  , ("RAMS",       nfcWest)
+  , ("49ERS",      nfcWest)
+  , ("SEAHAWKS",   nfcWest)
+  ]
+
 
 -- Lookup a team's division - assume well-formed data files :o
 teamToDivision :: String -> String
