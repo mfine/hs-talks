@@ -2,15 +2,17 @@ module Lib
   ( main'
   ) where
 
--- v8 : Functions for averaging ranks and producing their standard deviation.
---      Produce results and wire things up from rankings to results.
+-- v9 : Print out results and wire up file inputs and processing
 
+import Control.Monad
 import qualified Data.Map.Strict as Map
 import Data.List
 import Data.Maybe
 import Data.Ord
+import System.Environment
 import Text.Parsec
 import Text.Parsec.String
+import Text.Printf
 
 -- data ----------------------------------------------------
 
@@ -100,6 +102,29 @@ parseAndCalculate file = do
   rankings <- parseRankings file
   return (calculateResults rankings)
 
--- Program Entry
+-- Collect results from all the files
+parseAndCalculateAll :: [String] -> IO [(String, [Result])]
+parseAndCalculateAll files =
+  forM files $ \file -> do
+    results <- parseAndCalculate file
+    return (file, results)
+
+-- Print out a result
+printResult :: Result -> IO ()
+printResult result =
+  printf "%-10s %10.2f %10.2f\n" (rDivision result) (rAverage result) (rStdDev result)
+
+-- Print out all the results
+inputsToOutputs :: [(String, [Result])] -> IO ()
+inputsToOutputs results =
+  forM_ results $ \(file, results') -> do
+    putStrLn file
+    forM_ results' printResult
+    putStrLn ""
+
+-- Program Entry - pass file args as inputs
 main' :: IO ()
-main' = undefined
+main' = do
+  args <- getArgs
+  results <- parseAndCalculateAll args
+  inputsToOutputs results
