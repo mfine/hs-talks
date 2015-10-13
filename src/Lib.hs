@@ -2,8 +2,9 @@ module Lib
   ( main'
   ) where
 
--- v3 : Setup the parsing of the input
+-- v4 : Write the parsers
 
+import Text.Parsec
 import Text.Parsec.String
 
 -- data ----------------------------------------------------
@@ -25,11 +26,17 @@ data Result = Result
 
 -- Parse out a single ranking from the file
 rankingParser :: Parser Ranking
-rankingParser = undefined
+rankingParser = do
+  many space
+  rank <- many1 digit
+  many space
+  team <- many1 alphaNum
+  newline
+  return (Ranking (read rank) team)
 
 -- Parse out all of the rankings
 rankingsParser :: Parser [Ranking]
-rankingsParser = undefined
+rankingsParser = many1 rankingParser
 
 -- Take a file and produce a list of team rankings
 parseRankings :: String -> IO [Ranking]
