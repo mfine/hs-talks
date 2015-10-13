@@ -2,7 +2,7 @@ module Lib
   ( main'
   ) where
 
--- v6 : Helper functions to map teams to divisions
+-- v7 : Helper functions to group together divisions
 
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -55,6 +55,20 @@ teamDivisionMap = undefined
 teamToDivision :: String -> String
 teamToDivision team =
   fromJust (Map.lookup team teamDivisionMap)
+
+-- Convert a ranking to a (division, rank) tuple
+rankingToDivision :: Ranking -> (String, Int)
+rankingToDivision ranking =
+  (teamToDivision (rTeam ranking), rRank ranking)
+
+-- Group sort - collect values with identical keys
+groupSort :: Ord k => [(k, v)] -> [(k, [v])]
+groupSort kvs = Map.toList (Map.fromListWith (++) [(k, [v]) | (k, v) <- kvs])
+
+-- Turn the rankings into a (division, [rank]) tuple
+rankingsToDivisions :: [Ranking] -> [(String, [Int])]
+rankingsToDivisions rankings =
+  groupSort (map rankingToDivision rankings)
 
 -- Take teams rankings and calculate results
 calculateResults :: [Ranking] -> [Result]
