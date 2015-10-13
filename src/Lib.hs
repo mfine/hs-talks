@@ -2,19 +2,21 @@ module Lib
   ( main'
   ) where
 
--- v1 : Break the problem into two parts: parsing input (rankings)
---      and calculating output (results).
+-- v2 : Link the two parts and define the data to input and output.
 
 -- data ----------------------------------------------------
 
--- Ranking information.
+-- Ranking information - team rank, team name
 data Ranking = Ranking
-  {
+  { rRank :: Int
+  , rTeam :: String
   } deriving Show
 
--- Result information.
+-- Result information - division, average, standard deviation
 data Result = Result
-  {
+  { rDivision :: String
+  , rAverage  :: Double
+  , rStdDev   :: Double
   } deriving Show
 
 -- parsing -------------------------------------------------
@@ -30,6 +32,12 @@ calculateResults :: [Ranking] -> [Result]
 calculateResults = undefined
 
 -- main ----------------------------------------------------
+
+-- Combine the parsing and calculating
+parseAndCalculate :: String -> IO [Result]
+parseAndCalculate file = do
+  rankings <- parseRankings file
+  return (calculateResults rankings)
 
 -- Program Entry
 main' :: IO ()
