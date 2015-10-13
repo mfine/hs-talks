@@ -2,7 +2,7 @@ module Lib
   ( main'
   ) where
 
--- v4 : Write the parsers
+-- v5 : Process the file with the parsers - punt on error case, leave it undefined
 
 import Text.Parsec
 import Text.Parsec.String
@@ -40,7 +40,8 @@ rankingsParser = many1 rankingParser
 
 -- Take a file and produce a list of team rankings
 parseRankings :: String -> IO [Ranking]
-parseRankings = undefined
+parseRankings file =
+  parseFromFile rankingsParser file >>= either undefined return
 
 -- calculating ---------------------------------------------
 
