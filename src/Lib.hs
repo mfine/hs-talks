@@ -2,10 +2,13 @@ module Lib
   ( main'
   ) where
 
--- v7 : Helper functions to group together divisions
+-- v8 : Functions for averaging ranks and producing their standard deviation.
+--      Produce results and wire things up from rankings to results.
 
 import qualified Data.Map.Strict as Map
+import Data.List
 import Data.Maybe
+import Data.Ord
 import Text.Parsec
 import Text.Parsec.String
 
@@ -70,9 +73,24 @@ rankingsToDivisions :: [Ranking] -> [(String, [Int])]
 rankingsToDivisions rankings =
   groupSort (map rankingToDivision rankings)
 
+-- Average a number of rankings
+average :: [Int] -> Double
+average rankings = realToFrac (sum rankings) / genericLength rankings
+
+-- Standard deviation of rankings group
+stdDev :: [Int] -> Double
+stdDev rankings = sqrt (sum (map f rankings) / genericLength rankings) where
+  f ranking = (realToFrac ranking - average rankings) ** 2
+
+-- Produce a result from division and [rank]
+calculateResult :: (String, [Int]) -> Result
+calculateResult (division, rankings) =
+  Result division (average rankings) (stdDev rankings)
+
 -- Take teams rankings and calculate results
 calculateResults :: [Ranking] -> [Result]
-calculateResults = undefined
+calculateResults rankings =
+  sortBy (comparing rAverage) (map calculateResult (rankingsToDivisions rankings))
 
 -- main ----------------------------------------------------
 
