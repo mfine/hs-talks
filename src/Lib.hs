@@ -2,8 +2,10 @@ module Lib
   ( main'
   ) where
 
--- v5 : Process the file with the parsers - punt on error case, leave it undefined
+-- v6 : Helper functions to map teams to divisions
 
+import qualified Data.Map.Strict as Map
+import Data.Maybe
 import Text.Parsec
 import Text.Parsec.String
 
@@ -44,6 +46,15 @@ parseRankings file =
   parseFromFile rankingsParser file >>= either undefined return
 
 -- calculating ---------------------------------------------
+
+-- Map teams to their divisions
+teamDivisionMap :: Map.Map String String
+teamDivisionMap = undefined
+
+-- Lookup a team's division - assume well-formed data files :o
+teamToDivision :: String -> String
+teamToDivision team =
+  fromJust (Map.lookup team teamDivisionMap)
 
 -- Take teams rankings and calculate results
 calculateResults :: [Ranking] -> [Result]
