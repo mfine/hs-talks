@@ -2,7 +2,7 @@ module Lib
   ( main'
   ) where
 
--- v11 : Bring in chart support by cut and pasting example
+-- v12 : Charts for averages and standard deviations
 
 import Control.Monad
 import qualified Data.Map.Strict as Map
@@ -154,28 +154,46 @@ calculateResults rankings =
 
 -- chart ---------------------------------------------------
 
--- example code from haskell-chart
-trial frac = scanl (*) 1 (map f bits)
-  where
-    b = 0.1
+-- Flatten out results and store their file next to them
+flattenChartResults :: [(String, [Result])] -> [[(String, Result)]]
+flattenChartResults results =
+  flip map results $ \(file, results') ->
+    flip map results' $ \result ->
+      (file, result)
 
-    f True = (1+frac*(1+b))
-    f False = (1-frac)
-    bits = randoms $ mkStdGen 0
+-- Sort results by division
+sortChartResults :: [(String, Result)] -> [(String, Result)]
+sortChartResults results =
+  sortBy (comparing (rDivision . snd)) results
 
--- example code from haskell-chart
-vals :: Double -> [ (Double,LogValue) ]
-vals frac = [(fromIntegral x, LogValue y) | (x,y) <- filter (\(x,_)-> x `mod` (m+1)==0) $ take n $ zip [0..] (trial frac)]
-  where
-    n = 1001
-    m = 0
+-- Group results by division
+groupChartResults :: [(String, Result)] -> [[(String, Result)]]
+groupChartResults results =
+  groupBy (\a b -> rDivision (snd a) == rDivision (snd b)) results
 
--- example code from haskell-chart
-writeChart :: IO ()
-writeChart = toFile def "example4_big.png" $ do
-    layout_title .= "Simulation of betting on a biased coin"
-    plot (line "f=0.05" [vals 0.05 ])
-    plot (line "f=0.1" [vals 0.1])
+-- Group, sort, and flatten results for charting
+formatChartResults :: [(String, [Result])] -> [[(String, Result)]]
+formatChartResults results =
+  groupChartResults (sortChartResults (msum (flattenChartResults results)))
+
+-- Convert file name to week number
+formatFile :: String -> Integer
+formatFile file =
+  read (take 2 file)
+
+-- Produce (x, y) pair for chart for (week number, division average)
+formatChartLine :: [(String, Result)] -> [(Integer, Double)]
+formatChartLine results =
+  flip map results $ \(file, result) ->
+    (formatFile file, rAverage result)
+
+-- Generate charts for results
+writeChart :: [(String, [Result])] -> IO ()
+writeChart results = do
+  toFile def "results-average.png" $ do
+    layout_title .= "NFL Power Rankings by Divisions (Average)"
+    forM_ (formatChartResults results) $ \results' ->
+      plot (line (rDivision (snd (head results'))) [formatChartLine results'])
 
 -- main ----------------------------------------------------
 
@@ -205,9 +223,10 @@ inputsToOutputs results =
     forM_ results' printResult
     putStrLn ""
 
--- Program Entry - pass file args as inputs
+-- Program Entry - pass file args as inputs to output, chart generators
 main' :: IO ()
 main' = do
   args <- getArgs
   results <- parseAndCalculateAll args
   inputsToOutputs results
+  writeChart results
